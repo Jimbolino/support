@@ -1,0 +1,21 @@
+{
+    "name": "sunlight/support",
+    "description": "A collection of support classes and traits",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Matthew Radford",
+            "email": "mradford@protonmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Sunlight\\Support\\": "src/"
+        }
+    },
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^6.5"
+    }
+}
