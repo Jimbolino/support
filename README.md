@@ -9,7 +9,7 @@ use Sunlight\Support\Conformation;
 class Sample {
     use Conformation;
 
-    public function __construct(
+    private function __construct(
         string $str,
         int $int,
         bool $bool,
