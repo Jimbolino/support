@@ -19,7 +19,7 @@ trait Conformation {
         $filtered = static::arrayOnly($filled, $constructor_params);
         $ordered = static::order($constructor_params, $filled);
 
-        if (array_count_values(array_keys($filled)) != array_count_values($constructor_params)) {
+        if (array_count_values(array_keys($filtered)) != array_count_values($constructor_params)) {
             throw new InvalidArgumentException(
                 static::selfName() . ' missing key(s): ' . implode(', ', array_diff($constructor_params, array_keys($filtered)))
             );
