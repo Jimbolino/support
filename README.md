@@ -40,5 +40,11 @@ class Sample {
 ```
 
 ```php
-$sample = Sample::fromArray(['optional2' => 777, 'arg2' => 1, 'arg3' => false, 'arg1' => 'example', 'arg4' => 2.0 ]);
+$sample = Sample::fromArray([
+    'optional2' => 777,
+    'arg2' => 1,
+    'arg3' => false,
+    'arg1' => 'example',
+    'arg4' => 2.0,
+]);
 ```
