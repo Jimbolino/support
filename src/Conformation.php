@@ -74,10 +74,6 @@ trait Conformation
     private static function sortOrder(array $keys_to_conform_to, array $from)
     {
         return array_merge(array_flip($keys_to_conform_to), $from);
-
-        //$conform_array = array_fill_keys(array_flip($keys_to_conform_to), null);
-
-        //return array_diff_assoc($from, $conform_array);
     }
 
     private static function selfName()
