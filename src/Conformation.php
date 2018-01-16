@@ -4,7 +4,8 @@ use ReflectionClass;
 use ReflectionParameter;
 use InvalidArgumentException;
 
-trait Conformation {
+trait Conformation
+{
     public static function fromArray(array $arr)
     {
         $parts = static::filterAndOrderSource($arr);
@@ -15,14 +16,20 @@ trait Conformation {
     private static function filterAndOrderSource(array $source)
     {
         $constructor_params = static::getConstructorParameterNames();
-        $filled = static::padded($source);
-        $filtered = static::arrayOnly($filled, $constructor_params);
-        $ordered = static::order($constructor_params, $filled);
 
-        if (array_count_values(array_keys($filtered)) != array_count_values($constructor_params)) {
-            throw new InvalidArgumentException(
-                static::selfName() . ' missing key(s): ' . implode(', ', array_diff($constructor_params, array_keys($filtered)))
-            );
+        // fill optional parameters with their default value, if they aren't provided
+        $filled = static::fillOptionalParams($source);
+
+        // filter out any additional keys in the source array
+        $filtered = static::arrayOnly($filled, $constructor_params);
+
+        // sort the keys in the same order as the constructor params
+        $ordered = static::sortOrder($constructor_params, $filled);
+
+        if (array_count_values(array_keys($filtered)) !== array_count_values($constructor_params)) {
+            $missing_keys = array_diff($constructor_params, array_keys($filtered));
+
+            throw new InvalidArgumentException(static::selfName() . ' missing key(s): ' . implode(', ', $missing_keys));
         }
 
         return array_values($ordered);
@@ -37,19 +44,6 @@ trait Conformation {
         }, $params);
     }
 
-    private static function getRequiredConstructorParameters()
-    {
-        $params = (new ReflectionClass(__CLASS__))->getConstructor()->getParameters();
-
-        $required_params = array_filter(function ($param) {
-            return ! $param->isOptional();
-        }, $params);
-
-        return array_map(function (ReflectionParameter $param) {
-            return $param->name;
-        }, $required_params);
-    }
-
     private static function getOptionalConstructorParameters()
     {
         $params = (new ReflectionClass(__CLASS__))->getConstructor()->getParameters();
@@ -59,7 +53,7 @@ trait Conformation {
         });
     }
 
-    private static function padded(array $source)
+    private static function fillOptionalParams(array $source)
     {
         $optional_params = static::getOptionalConstructorParameters();
 
@@ -77,7 +71,7 @@ trait Conformation {
         return array_intersect_key($from, array_flip((array) $to));
     }
 
-    private static function order(array $keys_to_conform_to, array $from)
+    private static function sortOrder(array $keys_to_conform_to, array $from)
     {
         return array_merge(array_flip($keys_to_conform_to), $from);
 
