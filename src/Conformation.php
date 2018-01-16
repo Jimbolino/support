@@ -1,4 +1,4 @@
-<?php namespace Sunlight\Support;
+<?php namespace MattyRad\Support;
 
 use ReflectionClass;
 use ReflectionParameter;

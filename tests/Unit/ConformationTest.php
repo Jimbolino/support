@@ -1,4 +1,4 @@
-<?php namespace Sunlight\Support\Test\Unit;
+<?php namespace MattyRad\Support\Test\Unit;
 
 use InvalidArgumentException;
 

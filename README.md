@@ -1,10 +1,10 @@
-# Sunlight Support
+# MattyRad Support
 
 ## Conformation
 ### Instantiate objects from an unsorted array
 
 ```php
-use Sunlight\Support\Conformation;
+use MattyRad\Support\Conformation;
 
 class Sample {
     use Conformation;

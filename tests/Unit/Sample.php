@@ -1,6 +1,6 @@
-<?php namespace Sunlight\Support\Test\Unit;
+<?php namespace MattyRad\Support\Test\Unit;
 
-use Sunlight\Support\Conformation;
+use MattyRad\Support\Conformation;
 
 class Sample
 {
