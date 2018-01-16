@@ -1,6 +1,6 @@
 {
-    "name": "sunlight/support",
-    "description": "A collection of support classes and traits",
+    "name": "mattyrad/support",
+    "description": "A collection of PHP support classes and traits",
     "type": "library",
     "license": "MIT",
     "authors": [
