@@ -26,7 +26,7 @@ trait Conformation
         // sort the keys in the same order as the constructor params
         $ordered = static::sortOrder($constructor_params, $filled);
 
-        if (array_count_values(array_keys($filtered)) !== array_count_values($constructor_params)) {
+        if (array_count_values(array_keys($filtered)) != array_count_values($constructor_params)) {
             $missing_keys = array_diff($constructor_params, array_keys($filtered));
 
             throw new InvalidArgumentException(static::selfName() . ' missing key(s): ' . implode(', ', $missing_keys));
