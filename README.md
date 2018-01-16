@@ -1,7 +1,12 @@
 # MattyRad Support
 
-## Conformation
-### Instantiate objects from an unsorted array
+## Installation
+
+`composer require mattyrad/support`
+
+## Usage
+### Conformation Trait
+#### Instantiate objects from an unsorted array
 
 ```php
 use MattyRad\Support\Conformation;
@@ -9,18 +14,25 @@ use MattyRad\Support\Conformation;
 class Sample {
     use Conformation;
 
+    private $arg1;
+    private $arg2;
+    private $arg3;
+    private $arg4;
+    private $optional1;
+    private $optional2;
+
     private function __construct(
-        string $str,
-        int $int,
-        bool $bool,
-        float $float,
+        string $arg1,
+        int $arg2,
+        bool $arg3,
+        float $arg4,
         string $optional1 = '',
         int $optional2 = 1
     ) {
-        $this->str = $str;
-        $this->int = $int;
-        $this->bool = $bool;
-        $this->float = $float;
+        $this->arg1 = $arg1;
+        $this->arg2 = $arg2;
+        $this->arg3 = $arg3;
+        $this->arg4 = $arg4;
         $this->optional1 = $optional1;
         $this->optional2 = $optional2;
     }
@@ -28,5 +40,5 @@ class Sample {
 ```
 
 ```php
-$sample = Sample::fromArray(['str' => 'example', 'int' => 1, 'bool' => false, 'float' => 2.0 ]);
+$sample = Sample::fromArray(['optional2' => 777, 'arg2' => 1, 'arg3' => false, 'arg1' => 'example', 'arg4' => 2.0 ]);
 ```
