@@ -1,6 +1,6 @@
 # MattyRad Support
 
-![Build Status](https://api.travis-ci.org/MattyRad/support.png?branch=master)
+![Build Status](https://api.travis-ci.org/MattyRad/support.png?branch=master) ![Code Coverage](https://img.shields.io/codecov/c/github/mattyrad/support.svg)
 
 ## Installation
 
