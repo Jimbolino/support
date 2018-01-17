@@ -1,6 +1,6 @@
 # MattyRad Support
 
-[![Build Status](https://api.travis-ci.org/MattyRad/support.png?branch=master](https://travis-ci.org/MattyRad/support)
+[![Build Status](https://api.travis-ci.org/MattyRad/support.png?branch=master])(https://travis-ci.org/MattyRad/support)
 
 ## Installation
 
