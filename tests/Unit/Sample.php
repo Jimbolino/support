@@ -13,14 +13,8 @@ class Sample
     private $optional1;
     private $optional2;
 
-    private function __construct(
-        string $str,
-        int $int,
-        bool $bool,
-        float $float,
-        string $optional1 = '',
-        int $optional2 = 2
-    ) {
+    private function __construct($str, $int, $bool, $float, $optional1 = '', $optional2 = 2)
+    {
         $this->str = $str;
         $this->int = $int;
         $this->bool = $bool;
