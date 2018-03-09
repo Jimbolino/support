@@ -50,3 +50,66 @@ $sample = Sample::fromArray([
     'arg4' => 2.0,
 ]);
 ```
+
+### Result Objects
+#### It's very common to require extensible result objects for success and failures, particularly for APIs.
+
+```php
+use MattyRad\Support\Result;
+
+class ApiRequestRejected extends Result\Failure
+{
+    protected static $message = 'Api rejected the request';
+    protected static $status_code = 422;
+
+    private $reason;
+
+    public function __construct($reason)
+    {
+        $this->reason = $reason;
+    }
+
+    public function getReason()
+    {
+        return $this->reason;
+    }
+}
+
+class PurchasedWidged extends Success
+{
+    public function __construct(Widget $widget)
+    {
+        $this->widget = $widget;
+    }
+
+    public function getWidget()
+    {
+        return $this->reason;
+    }
+}
+```
+
+```php
+public function purchaseWidget(): Result
+{
+    if ($this->notEnoughCredit()) {
+        return new Result\Failure\ApiRequestRejected('Not enough money!');
+    }
+
+    $this->credit_api->charge(...);
+
+    $widget = $this->makeWidget();
+
+    return new Result\Success\PurchasedWidged($widget)
+}
+```
+
+```php
+$result = $this->thing->purchaseWidget();
+
+if ($result->isFailure()) {
+    throw new Exception\PurchaseFailed($result->getReason());
+}
+
+return $result->getWidget();
+```
