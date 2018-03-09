@@ -6,7 +6,11 @@
 
 `composer require mattyrad/support`
 
-## Usage
+## Table of Contents
+
+- [Conformation Trait](#conformation-trait)
+- [Result Objects](#result-objects)
+
 ### Conformation Trait
 #### Instantiate objects from an unsorted array
 
@@ -57,50 +61,48 @@ $sample = Sample::fromArray([
 ```php
 use MattyRad\Support\Result;
 
-class ApiRequestRejected extends Result\Failure
+class NotEnoughCredit extends Result\Failure
 {
-    protected static $message = 'Api rejected the request';
+    protected static $message = 'Account does not have enough credit';
     protected static $status_code = 422;
 
-    private $reason;
-
-    public function __construct($reason)
+    public function __construct($account_balance)
     {
-        $this->reason = $reason;
+        $this->account_balance = $account_balance;
     }
 
-    public function getReason()
+    public function getContext()
     {
-        return $this->reason;
+        return ['balance' => $this->account_balance];
     }
 }
 
-class PurchasedWidged extends Success
+class WidgetPurchased extends Result\Success
 {
     public function __construct(Widget $widget)
     {
         $this->widget = $widget;
     }
 
-    public function getWidget()
+    public function getWidget(): Widget
     {
-        return $this->reason;
+        return $this->widget;
     }
 }
 ```
 
 ```php
+use MattyRad\Support\Result;
+
 public function purchaseWidget(): Result
 {
-    if ($this->notEnoughCredit()) {
-        return new Result\Failure\ApiRequestRejected('Not enough money!');
+    try {
+        $this->payments->charge(10.00);
+    } catch (Exception\NotEnoughMoney $e) {
+        return new Result\Failure\NotEnoughCredit($e->getBalance());
     }
 
-    $this->credit_api->charge(...);
-
-    $widget = $this->makeWidget();
-
-    return new Result\Success\PurchasedWidged($widget)
+    return new Result\Success\WidgetPurchased(new Widget);
 }
 ```
 
@@ -108,8 +110,8 @@ public function purchaseWidget(): Result
 $result = $this->thing->purchaseWidget();
 
 if ($result->isFailure()) {
-    throw new Exception\PurchaseFailed($result->getReason());
+    return new Response($result->getReason(), $result->getStatusCode());
 }
 
-return $result->getWidget();
+return new Response($result->getWidget()->toJson());
 ```
