@@ -14,6 +14,11 @@
             "MattyRad\\Support\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "MattyRad\\Support\\Test\\": "tests/"
+        }
+    },
     "require": {
         "php": ">=5.6"
     },

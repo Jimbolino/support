@@ -6,7 +6,11 @@
 
 `composer require mattyrad/support`
 
-## Usage
+## Table of Contents
+
+- [Conformation Trait](#conformation-trait)
+- [Result Objects](#result-objects)
+
 ### Conformation Trait
 #### Instantiate objects from an unsorted array
 
@@ -49,4 +53,65 @@ $sample = Sample::fromArray([
     'arg1' => 'example',
     'arg4' => 2.0,
 ]);
+```
+
+### Result Objects
+#### It's very common to require extensible result objects for success and failures, particularly for APIs.
+
+```php
+use MattyRad\Support\Result;
+
+class NotEnoughCredit extends Result\Failure
+{
+    protected static $message = 'Account does not have enough credit';
+    protected static $status_code = 422;
+
+    public function __construct($account_balance)
+    {
+        $this->account_balance = $account_balance;
+    }
+
+    public function getContext()
+    {
+        return ['balance' => $this->account_balance];
+    }
+}
+
+class WidgetPurchased extends Result\Success
+{
+    public function __construct(Widget $widget)
+    {
+        $this->widget = $widget;
+    }
+
+    public function getWidget(): Widget
+    {
+        return $this->widget;
+    }
+}
+```
+
+```php
+use MattyRad\Support\Result;
+
+public function purchaseWidget(): Result
+{
+    try {
+        $this->payments->charge(10.00);
+    } catch (Exception\NotEnoughMoney $e) {
+        return new Result\Failure\NotEnoughCredit($e->getBalance());
+    }
+
+    return new Result\Success\WidgetPurchased(new Widget);
+}
+```
+
+```php
+$result = $this->thing->purchaseWidget();
+
+if ($result->isFailure()) {
+    return new Response($result->getReason(), $result->getStatusCode());
+}
+
+return new Response($result->getWidget()->toJson());
 ```
