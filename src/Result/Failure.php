@@ -2,10 +2,7 @@
 
 abstract class Failure extends Base
 {
-    const DEFAULT_HTTP_ERROR = 500;
-
     protected static $message;
-    protected static $http_code;
 
     abstract public function getContext(); //: array
 
@@ -24,13 +21,18 @@ abstract class Failure extends Base
         return $this->formatMessage(static::$message, $this->getContext());
     }
 
-    public function getStatusCode()
-    {
-        return static::$http_code ?: self::DEFAULT_HTTP_ERROR;
-    }
-
     private function formatMessage($message, array $context)
     {
         return sprintf('%s; %s', $message, json_encode($context));
+    }
+
+    public function toException(): \Exception
+    {
+        return new \Exception(static::$message);
+    }
+
+    public function __call($name, $arguments)
+    {
+        throw $this->toException();
     }
 }

@@ -1,8 +1,15 @@
 <?php namespace MattyRad\Support\Result;
 
-abstract class Success extends Base
+use Illuminate\Support\Arr;
+
+class Success extends Base implements \JsonSerializable
 {
-    const HTTP_OK_RESPONSE_CODE = 200;
+    private $response_data;
+
+    public function __construct(array $response_data)
+    {
+        $this->response_data = $response_data;
+    }
 
     public function isSuccess()
     {
@@ -19,8 +26,23 @@ abstract class Success extends Base
         return null;
     }
 
-    public function getStatusCode()
+    public function has($offset)
     {
-        return self::HTTP_OK_RESPONSE_CODE;
+        return Arr::has($this->response_data, $offset);
+    }
+
+    public function get($offset)
+    {
+        return Arr::get($this->response_data, $offset);
+    }
+
+    public function toArray(): array
+    {
+        return $this->response_data;
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toArray();
     }
 }

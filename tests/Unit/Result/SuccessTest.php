@@ -27,12 +27,4 @@ abstract class SuccessTest extends BaseTest
 
         $this->assertEquals($expected, $actual);
     }
-
-    public function test_getStatusCode()
-    {
-        $expected = 200;
-        $actual = $this->result->getStatusCode();
-
-        $this->assertEquals($expected, $actual);
-    }
 }

@@ -19,12 +19,17 @@ abstract class FailureTest extends BaseTest
 
         $this->assertEquals($expected, $actual);
     }
-
-    public function test_getStatusCode()
+    public function test_toExceptionMessage()
     {
-        $expected = 500;
-        $actual = $this->result->getStatusCode();
+        $e = $this->result->toException();
 
-        $this->assertEquals($expected, $actual);
+        $this->assertInstanceOf(\Exception::class, $e);
+    }
+
+    public function test_accessorsThrowExceptions()
+    {
+        $this->expectException(\Exception::class);
+
+        $this->result->getImportantData();
     }
 }
