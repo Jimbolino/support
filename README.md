@@ -55,6 +55,16 @@ $sample = Sample::fromArray([
 ]);
 ```
 
+Failing to provide all the required arguments will throw an Exception
+
+```php
+$sample = Sample::fromArray([
+    'arg1' => 'example',
+    'arg2' => 1,
+]);
+```
+`PHP Fatal error:  Uncaught InvalidArgumentException: Sample missing key(s): arg3, arg4`
+
 ### Result Objects
 
 It's very common to require extensible result objects for success and failures, particularly for APIs.
@@ -75,7 +85,7 @@ $result->isSuccess(); // true
 $result->isFailure(); // false
 ```
 
-But it's better to extend the Success object with more specific results, particularly because unit testing will be easier.
+For more precision, you can extend the Success result
 ```php
 class WidgetPurchased extends Result\Success
 {
@@ -126,11 +136,10 @@ $result->isFailure(); // true
 $result->getReason(); // 'Stripe charge failed, delinquent card; {"last_four_digits":"1234"}'
 ```
 
-#### Creating and Using Results
+#### Instantiating and Returning Results
 
 ```php
 use MattyRad\Support\Result;
-use Stripe;
 
 function purchaseWidget($user, string $widget_name): Result
 {
@@ -140,7 +149,7 @@ function purchaseWidget($user, string $widget_name): Result
 
     try {
         $user->charge(100); // API call, this could be any interface to stripe
-    } catch (Stripe\Error\Card $e) {
+    } catch (\Stripe\Error\Card $e) {
         return new Result\Failure\Stripe\ChargeFailed($e->getLastFour()); // pretend that getLastFour exists
     }
 
@@ -164,91 +173,27 @@ if ($result->isFailure()) {
 return new JsonResponse($result->getWidget());
 ```
 
-Or you can catch the exception for failures
+Alternatively, you can leverage Exceptions and cut out the success/failure checks. Attempting to access data from a Failure Result will cause it to throw an Exception
 
 ```php
-$result = purchaseWidget(Auth::user(), 'my_cool_new_widget');
+$result = purchaseWidget(Auth::user(), 'my_cool_new_widget'); // returns ChargeFailed
 
-try {
-    $widget = $result->getWidget();
-} catch (\Exception $e) {
-    // handle it. you can override the toException function in the Failure result if
-    // you want to catch a more specific exception (which you should)
-}
-
-return new JsonResponse($widget);
+return new Response($result->getWidget()); // Throws exception
 ```
 
-Or don't worry about checking the result at all, and use your Exception Handler to deal with errors
+Laravel's Exception Handler handles a number of exceptions by default (like HttpResponseException), which we can use to our advantage by overriding the default toException function of the Failure Result
 
 ```php
-$result = purchaseWidget(Auth::user(), 'my_cool_new_widget');
-
-return new Response($result->getWidget());
-```
-
-```php
-// Your exception handler
-
-public function render($request, Exception $e)
+class ChargeFailed extends Result\Failure
 {
-    if ($e instanceof SpecificException) {
-        // Override the toException method in a failure to write a specific exception
-        return new JsonResponse(['error' => $e->getMessage()], 422);
+    // ...
+
+    public function toException()
+    {
+        $response = new JsonResponse(['error' => static::$message], 422);
+
+        return new HttpResponseException($response);
     }
-}
 ```
 
-Don't forget that Exception Handlers usually handle a number of exceptions by default, which we can use to our advantage
-
-```php
-public function toException()
-{
-    $response = new JsonResponse(['error' => static::$message], 422);
-
-    return new HttpResponseException($response);
-}
-```
-
-Now our controller has error handling built in, and we can focus on the success cases
-
-```php
-$result = purchaseWidget(Auth::user(), 'my_cool_new_widget');
-
-return new JsonResponse($result->getWidget());
-```
-
-One could argue that this obscures how error handling works, but we've gained clean code and smaller units. Unit testing across the entire stack should now be trivial. For example:
-
-```php
-/**
- * @dataProvider resultProvider
- */
-public function test_purchase(Result $purchase_result, $expected_data)
-{
-    $this->dependency->purchaseWidget(Argument::type(User::class), Argument::type('string'))
-        ->willReturn($result);
-
-    $response = $this->controller->purchase(...);
-
-    $this->assertArrayContains(json_encode($expected_data), $response->getContent());
-}
-
-public function resultProvider()
-{
-    return [
-        [
-            new Result\Success\WidgetPurchased($widget = new Widget('my_cool_new_widget')),
-            $widget
-        ],
-        [
-            new Result\Failure\Stripe\ChargeFailed('1234'),
-            ['error' => 'Stripe charge failed, delinquent card'],
-        ],
-        [
-            new Result\Failure\WidgetExists(new Widget(['name' => $name = 'abc123'])),
-            ['error' => "Sorry, a widget with the name '$name' already exists"],
-        ],
-    ];
-}
-```
+And error handling will be built in, we can focus on the success path. Any non-built in exceptions can get caught in the render() function of the Exception Handler.

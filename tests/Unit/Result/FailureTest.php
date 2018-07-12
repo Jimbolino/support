@@ -4,7 +4,11 @@ abstract class FailureTest extends BaseTest
 {
     protected $result;
 
-    public function test_isSuccess()
+    abstract public function test_getContext();
+    abstract public function test_getReason();
+    abstract public function test_toExceptionMessage();
+
+    final public function test_isSuccess()
     {
         $expected = false;
         $actual = $this->result->isSuccess();
@@ -12,24 +16,30 @@ abstract class FailureTest extends BaseTest
         $this->assertEquals($expected, $actual);
     }
 
-    public function test_isFailure()
+    final public function test_isFailure()
     {
         $expected = true;
         $actual = $this->result->isFailure();
 
         $this->assertEquals($expected, $actual);
     }
-    public function test_toExceptionMessage()
+
+    public function test_base_toException()
     {
         $e = $this->result->toException();
 
         $this->assertInstanceOf(\Exception::class, $e);
     }
 
-    public function test_accessorsThrowExceptions()
+    public function test_accessorsThrowException()
     {
-        $this->expectException(\Exception::class);
+        try {
+            $this->result->getImportantData();
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(\Exception::class, $e);
+            return;
+        }
 
-        $this->result->getImportantData();
+        $this->fail('An exception was not thrown!');
     }
 }

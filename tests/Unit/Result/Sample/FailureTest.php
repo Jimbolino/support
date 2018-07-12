@@ -41,9 +41,16 @@ class FailureTest extends Test\Unit\Result\FailureTest
         );
     }
 
+    public function test_getContext()
+    {
+        $actual = $this->result->getContext();
+
+        $this->assertEquals($this->context, $actual);
+    }
+
     public function test_getReason()
     {
-        $expected = 'The thing did not work; ' . json_encode($this->context);
+        $expected = 'The thing did not work; ' . json_encode($this->result->getContext());
         $actual = $this->result->getReason();
 
         $this->assertEquals($expected, $actual);

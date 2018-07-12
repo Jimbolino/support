@@ -4,7 +4,7 @@ abstract class SuccessTest extends BaseTest
 {
     protected $result;
 
-    public function test_isSuccess()
+    final public function test_isSuccess()
     {
         $expected = true;
         $actual = $this->result->isSuccess();
@@ -12,7 +12,7 @@ abstract class SuccessTest extends BaseTest
         $this->assertEquals($expected, $actual);
     }
 
-    public function test_isFailure()
+    final public function test_isFailure()
     {
         $expected = false;
         $actual = $this->result->isFailure();
@@ -20,7 +20,7 @@ abstract class SuccessTest extends BaseTest
         $this->assertEquals($expected, $actual);
     }
 
-    public function test_getReason()
+    final public function test_getReason()
     {
         $expected = '';
         $actual = $this->result->getReason();

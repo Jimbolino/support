@@ -6,12 +6,12 @@ abstract class Failure extends Base
 
     abstract public function getContext(); //: array
 
-    public function isSuccess()
+    final public function isSuccess()
     {
         return false;
     }
 
-    public function isFailure()
+    final public function isFailure()
     {
         return true;
     }
@@ -26,7 +26,7 @@ abstract class Failure extends Base
         return sprintf('%s; %s', $message, json_encode($context));
     }
 
-    public function toException(): \Exception
+    public function toException()//: \Exception
     {
         return new \Exception(static::$message);
     }

@@ -6,6 +6,19 @@ use InvalidArgumentException;
 
 trait Conformation
 {
+    private static $gettype_to_typehint_map = [
+        'boolean' => 'bool',
+        'integer' => 'int',
+        'double' => 'float',
+        'string' => 'string',
+        'array' => 'array',
+        'object' => 'object',
+        'resource' => 'resource',
+        'resource (closed)' => 'resource (closed)',
+        'NULL' => 'NULL',
+        'unknown type' => 'unknown type',
+    ];
+
     public static function fromArray(array $arr)
     {
         $parts = static::filterAndOrderSource($arr);
@@ -31,6 +44,9 @@ trait Conformation
 
             throw new InvalidArgumentException(static::selfName() . ' missing key(s): ' . implode(', ', $missing_keys));
         }
+
+        // oddly enough, php will actually cast a value to its typehint, so make sure that are types are correct
+        static::validateTypes($ordered);
 
         return array_values($ordered);
     }
@@ -64,6 +80,34 @@ trait Conformation
         }
 
         return $source;
+    }
+
+    private static function validateTypes(array $ordered)
+    {
+        $params = (new ReflectionClass(__CLASS__))->getConstructor()->getParameters();
+
+        foreach ($params as $param) {
+            if (! $param->hasType()) {
+                continue;
+            }
+
+            $value = $ordered[$param->name];
+
+            if ($param->getType()->allowsNull() && is_null($value)) {
+                continue;
+            }
+
+            $typehint = (string) $param->getType();
+
+            $local_type = is_object($value) ? get_class($value) : static::$gettype_to_typehint_map[gettype($value)];
+
+            if ($typehint !== $local_type) {
+                $message = 'Param "' . $param->name . '" expected type ' . $param->getType();
+                $message .= ' but got type ' . $local_type;
+                $message .= is_object($value) ? '' : " with value '$value'";
+                throw new InvalidArgumentException($message);
+            }
+        }
     }
 
     private static function arrayOnly(array $from, array $to)

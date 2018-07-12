@@ -11,17 +11,17 @@ class Success extends Base implements \JsonSerializable
         $this->response_data = $response_data;
     }
 
-    public function isSuccess()
+    final public function isSuccess()
     {
         return true;
     }
 
-    public function isFailure()
+    final public function isFailure()
     {
         return false;
     }
 
-    public function getReason()
+    final public function getReason()
     {
         return null;
     }
@@ -36,7 +36,7 @@ class Success extends Base implements \JsonSerializable
         return Arr::get($this->response_data, $offset);
     }
 
-    public function toArray(): array
+    public function toArray()//: array
     {
         return $this->response_data;
     }
