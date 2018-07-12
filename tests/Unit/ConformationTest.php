@@ -110,14 +110,21 @@ class ConformationTest extends \PHPUnit\Framework\TestCase
     public function typeProvider()
     {
         return [
-            'incorrect primitive types see errors' => [[
+            'incorrect primitive types see errors (str)' => [[
                 'array' => [1,2,3],
                 'str' => 1,
                 'int' => 1,
                 'bool' => 1,
                 'float' => 1,
             ], 'Param "str" expected type string but got type int with value \'1\''],
-            'incorrect object types see errors' => [[
+            'incorrect primitive types see errors (array)' => [[
+                'array' => 'bad',
+                'str' => 1,
+                'int' => 1,
+                'bool' => 1,
+                'float' => 1,
+            ], 'Param "array" expected type array but got type string with value \'bad\''],
+            'incorrect object types see errors (object to primitive)' => [[
                 'array' => [1,2,3],
                 'str' => 'example',
                 'int' => 1,
@@ -125,6 +132,13 @@ class ConformationTest extends \PHPUnit\Framework\TestCase
                 'float' => 1.0,
                 'optional2' => 100,
             ], 'Param "optional2" expected type stdClass but got type int with value \'100\''],
+            'incorrect object types see errors (primitive to object)' => [[
+                'array' => [1,2,3],
+                'str' => 'example',
+                'int' => new \stdClass,
+                'bool' => false,
+                'float' => 1.0,
+            ], 'Param "int" expected type int but got type stdClass'],
             'incorrect object types see errors (object message)' => [[
                 'array' => [1,2,3],
                 'str' => new \stdClass,
