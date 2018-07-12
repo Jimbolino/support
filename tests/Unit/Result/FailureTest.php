@@ -5,7 +5,6 @@ abstract class FailureTest extends BaseTest
     protected $result;
 
     abstract public function test_getContext();
-    abstract public function test_getReason();
     abstract public function test_toExceptionMessage();
 
     final public function test_isSuccess()
