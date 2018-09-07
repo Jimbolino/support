@@ -6,6 +6,7 @@ class Sample
 {
     use Conformation;
 
+    private $array;
     private $str;
     private $int;
     private $bool;
@@ -13,8 +14,16 @@ class Sample
     private $optional1;
     private $optional2;
 
-    private function __construct($str, $int, $bool, $float, $optional1 = '', $optional2 = 2)
-    {
+    private function __construct(
+        array $array,
+        string $str,
+        int $int,
+        bool $bool,
+        ?float $float,
+        $optional1 = '',
+        \stdClass $optional2 = null
+    ) {
+        $this->array = $array;
         $this->str = $str;
         $this->int = $int;
         $this->bool = $bool;
@@ -26,6 +35,7 @@ class Sample
     public function toArray()
     {
         return [
+            'array' => $this->array,
             'str' => $this->str,
             'int' => $this->int,
             'bool' => $this->bool,

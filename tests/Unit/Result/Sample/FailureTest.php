@@ -6,7 +6,6 @@ use MattyRad\Support\Result;
 class Failure extends Result\Failure {
 
     protected static $message = 'The thing did not work';
-    protected static $http_code = 501;
 
     private $context;
 
@@ -15,7 +14,7 @@ class Failure extends Result\Failure {
         $this->context = $context;
     }
 
-    public function getContext()
+    public function getContext(): array
     {
         return $this->context;
     }
@@ -42,19 +41,25 @@ class FailureTest extends Test\Unit\Result\FailureTest
         );
     }
 
+    public function test_getContext()
+    {
+        $actual = $this->result->getContext();
+
+        $this->assertEquals($this->context, $actual);
+    }
+
     public function test_getReason()
     {
-        $expected = 'The thing did not work; ' . json_encode($this->context);
+        $expected = 'The thing did not work; ' . json_encode($this->result->getContext());
         $actual = $this->result->getReason();
 
         $this->assertEquals($expected, $actual);
     }
 
-    public function test_getStatusCode()
+    public function test_toExceptionMessage()
     {
-        $expected = 501;
-        $actual = $this->result->getStatusCode();
+        $e = $this->result->toException();
 
-        $this->assertEquals($expected, $actual);
+        $this->assertEquals('The thing did not work', $e->getMessage());
     }
 }

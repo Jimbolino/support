@@ -1,9 +1,8 @@
 <?php namespace MattyRad\Support;
 
-interface Result
+interface Result extends \JsonSerializable
 {
     public function isSuccess();
     public function isFailure();
-    public function getReason();
-    public function getStatusCode();
+    public function toArray(): array;
 }

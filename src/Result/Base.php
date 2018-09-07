@@ -6,6 +6,4 @@ abstract class Base implements Result
 {
     abstract public function isSuccess();
     abstract public function isFailure();
-    abstract public function getReason();
-    abstract public function getStatusCode();
 }

@@ -1,10 +1,12 @@
 <?php namespace MattyRad\Support\Test\Unit\Result;
 
+use MattyRad\Support\Result;
+
 abstract class SuccessTest extends BaseTest
 {
     protected $result;
 
-    public function test_isSuccess()
+    final public function test_isSuccess()
     {
         $expected = true;
         $actual = $this->result->isSuccess();
@@ -12,7 +14,7 @@ abstract class SuccessTest extends BaseTest
         $this->assertEquals($expected, $actual);
     }
 
-    public function test_isFailure()
+    final public function test_isFailure()
     {
         $expected = false;
         $actual = $this->result->isFailure();
@@ -20,19 +22,56 @@ abstract class SuccessTest extends BaseTest
         $this->assertEquals($expected, $actual);
     }
 
-    public function test_getReason()
+    /**
+     * @dataProvider responseDataProvider
+     */
+    public function test_get_isDotWildcardSyntaxEnabled(array $response_data, $key, $expected)
     {
-        $expected = '';
-        $actual = $this->result->getReason();
+        $r = new class($response_data) extends Result\Success {};
+
+        $actual = $r->get($key);
 
         $this->assertEquals($expected, $actual);
     }
 
-    public function test_getStatusCode()
+    public function responseDataProvider()
     {
-        $expected = 200;
-        $actual = $this->result->getStatusCode();
-
-        $this->assertEquals($expected, $actual);
+        return [
+            'empty' => [
+                [],
+                'c.z',
+                null,
+            ],
+            'can get ordinary array values' => [
+                ['a' => 1, 'b' => 2, 'c' => ['z' => 3]],
+                'a',
+                1,
+            ],
+            'is dot syntax enabled' => [
+                ['a' => 1, 'b' => 2, 'c' => ['z' => 3]],
+                'c.z',
+                3,
+            ],
+            'is wildcard enabled' => [
+                ['a' => [['b' => 1], ['b' => 2]]],
+                'a.*.b',
+                [1, 2],
+            ],
+            'is wildcard enabled (multiple wildcards)' => [
+                ['a' => [['b' => [['c' => 'what'], ['c' => 'is']]], ['b' => [['c' => 'up'], ['c' => 'dawg']]]]],
+                'a.*.b.*.c',
+                ['what', 'is', 'up', 'dawg'],
+            ],
+            'is wildcard enabled (wildcard terminated)' => [
+                ['a' => ['some', 'random', 'values']],
+                'a.*',
+                ['some', 'random', 'values'],
+            ],
+            'is chained wildcard enabled' => [
+                ['a' => [['some'], ['other'], ['values']]],
+                'a.*.*',
+                ['some', 'other', 'values'],
+            ],
+        ];
     }
 }
