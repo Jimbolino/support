@@ -3,8 +3,6 @@
 use MattyRad\Support\Test;
 use MattyRad\Support\Result;
 
-class Success extends Result\Success {}
-
 class SuccessTest extends Test\Unit\Result\SuccessTest
 {
     const RESPONSE_DATA = ['k' => 'v'];
@@ -13,18 +11,12 @@ class SuccessTest extends Test\Unit\Result\SuccessTest
 
     public function setUp()
     {
-        $this->result = new Success(self::RESPONSE_DATA);
+        $this->result = new class(self::RESPONSE_DATA) extends Result\Success {};
     }
 
     public function tearDown()
     {
         unset($this->result);
-    }
-
-    public function test_has()
-    {
-        $this->assertTrue($this->result->has('k'));
-        $this->assertFalse($this->result->has('dne'));
     }
 
     public function test_get()

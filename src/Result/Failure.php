@@ -4,7 +4,7 @@ abstract class Failure extends Base
 {
     protected static $message;
 
-    abstract public function getContext(); //: array
+    abstract public function getContext(): array;
 
     final public function isSuccess()
     {
@@ -14,6 +14,11 @@ abstract class Failure extends Base
     final public function isFailure()
     {
         return true;
+    }
+
+    public function getMessage()
+    {
+        return static::$message;
     }
 
     public function getReason()
@@ -29,6 +34,16 @@ abstract class Failure extends Base
     public function toException()//: \Exception
     {
         return new \Exception(static::$message);
+    }
+
+    public function toArray(): array
+    {
+        return $this->getContext();
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toArray();
     }
 
     public function __call($name, $arguments)
