@@ -1,7 +1,6 @@
 language: php
 
 php:
-  # - FIXME: 5.6 doesn't play nicely with modern typehints
   - 7.1
   - 7.2
 
