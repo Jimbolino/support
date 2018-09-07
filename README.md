@@ -74,15 +74,14 @@ It's very common to require extensible result objects for success and failures, 
 You can hit the ground running with generic success results
 
 ```php
-$json_response = $this->api->request('something');
+$json_response_data = ['user' => ['name' => 'John', 'email' => 'user@example.com', 'posts' => [['name' => 'A'], ['name' => 'B']]]];
 
-$response_data = json_decode($json_response->getBody(), true); // ['user' => ['name' => 'John', 'email' => 'user@example.com']];
+$result = new \MattyRad\Support\Result\Success($json_response_data);
 
-$result = new \MattyRad\Support\Result\Success($response_data);
-
-$result->get('user.email'); // dot syntax enabled
 $result->isSuccess(); // true
 $result->isFailure(); // false
+$result->get('user.email'); // dot syntax enabled
+$result->get('user.posts.*.name'); // wildcard enabled, ['A', 'B']
 ```
 
 For more precision, you can extend the Success result
@@ -129,10 +128,12 @@ class ChargeFailed extends Result\Failure
     }
 }
 
-$result->get('widget.name'); // throws exception with message 'Stripe charge failed, delinquent card'
-$result->getWidget(); // also throws exception with message 'Stripe charge failed, delinquent card'
 $result->isSuccess(); // false
 $result->isFailure(); // true
+$result->get('widget.name'); // throws exception with message 'Stripe charge failed, delinquent card'
+$result->getWidget(); // also throws exception with message 'Stripe charge failed, delinquent card'
+$result->getMessage(); // 'Stripe charge failed, delinquent card'
+$result->getContext(); // ['last_four_digits' => '1234']
 $result->getReason(); // 'Stripe charge failed, delinquent card; {"last_four_digits":"1234"}'
 ```
 
