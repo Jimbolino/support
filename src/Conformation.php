@@ -45,10 +45,45 @@ trait Conformation
             throw new InvalidArgumentException(static::selfName() . ' missing key(s): ' . implode(', ', $missing_keys));
         }
 
-        // oddly enough, php will actually cast a value to its typehint, so make sure that are types are correct
-        static::validateTypes($ordered);
+        $casted = static::castOtherConformations($ordered);
 
-        return array_values($ordered);
+        // in some cases, php will actually cast a value to its typehint, so make sure that are types are correct
+        static::validateTypes($casted);
+
+        return array_values($casted);
+    }
+
+    private static function castOtherConformations(array $ordered)
+    {
+        $params = (new ReflectionClass(__CLASS__))->getConstructor()->getParameters();
+
+        foreach ($params as $param) {
+            if (! $param->hasType()) {
+                continue;
+            }
+
+            $value = $ordered[$param->name];
+
+            if ($param->getType()->allowsNull() && is_null($value)) {
+                continue;
+            }
+
+            $typehint = (string) $param->getType();
+
+            $local_type = is_object($value) ? get_class($value) : static::$gettype_to_typehint_map[gettype($value)];
+
+            try {
+                $trait_names = array_keys((new ReflectionClass($typehint))->getTraits());
+            } catch (\ReflectionException $e) {
+                continue;
+            }
+
+            if (in_array(Conformation::class, $trait_names) && $local_type === 'array') {
+                $ordered[$param->name] = $typehint::fromArray($value);
+            }
+        }
+
+        return $ordered;
     }
 
     private static function getConstructorParameterNames()
@@ -101,7 +136,13 @@ trait Conformation
 
             $local_type = is_object($value) ? get_class($value) : static::$gettype_to_typehint_map[gettype($value)];
 
-            if ($typehint !== $local_type) {
+            try {
+                $trait_names = array_keys((new ReflectionClass($typehint))->getTraits());
+            } catch (\ReflectionException $e) {
+                $trait_names = [];
+            }
+
+            if ($typehint !== $local_type && ! (in_array(Conformation::class, $trait_names) && $local_type === 'array')) {
                 $message = 'Param "' . $param->name . '" expected type ' . $param->getType();
                 $message .= ' but got type ' . $local_type;
                 $message .= is_object($value) ? '' : " with value '$value'";

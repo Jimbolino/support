@@ -1,5 +1,6 @@
 <?php namespace MattyRad\Support\Test\Unit;
 
+use MattyRad\Support\Conformation;
 use InvalidArgumentException;
 
 class ConformationTest extends \PHPUnit\Framework\TestCase
@@ -12,6 +13,85 @@ class ConformationTest extends \PHPUnit\Framework\TestCase
         $this->expectExceptionMessage('Sample missing key(s): array, str, int, bool, float');
 
         $sample = Sample::fromArray([]);
+    }
+
+    public function testConstructorParamsThatUseConformationAndGetArraysPushThemIntoTheObject()
+    {
+        $sample2 = Sample2::fromArray([
+            'string' => 'this is a sample',
+            'sub' => [
+                'a' => 'first',
+                'b' => 2,
+            ],
+        ]);
+
+        $this->assertEquals(\MattyRad\Support\Test\Unit\SubConformation::class, get_class($sample2->getSub()));
+    }
+
+    public function testConstructorParamsThatUseConformationAndGetArraysPushThemIntoTheObject2()
+    {
+        $recurse = RecursiveSample::fromArray([
+            'string' => 'this is a sample',
+            'sub2' => [
+                'd' => 'D', 
+                'e' => 5, 
+                'sub1' => [
+                    'a' => 'A',
+                    'b' => 2,
+                ]
+            ],
+        ]);
+
+        $this->assertEquals(\MattyRad\Support\Test\Unit\Sub2::class, get_class($recurse->getSub2()));
+        $this->assertEquals(\MattyRad\Support\Test\Unit\Sub1::class, get_class($recurse->getSub2()->getSub1()));
+    }
+
+    public function testConstructorParamsThatUseConformationAndGetArraysPushThemIntoTheObject3()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Param \"e\" expected type int but got type string with value 'E'");
+
+        $recurse = RecursiveSample::fromArray([
+            'string' => 'this is a sample',
+            'sub2' => [
+                'd' => 'D', 
+                'e' => 'E', 
+                'sub1' => [
+                    'a' => 'A',
+                    'b' => 2,
+                ]
+            ],
+        ]);
+    }
+
+    public function testConstructorParamsThatUseConformationAndGetArraysPushThemIntoTheObject4()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Param \"b\" expected type int but got type string with value 'B'");
+
+        $recurse = RecursiveSample::fromArray([
+            'string' => 'this is a sample',
+            'sub2' => [
+                'd' => 'D', 
+                'e' => 5, 
+                'sub1' => [
+                    'a' => 'A',
+                    'b' => 'B',
+                ]
+            ],
+        ]);
+    }
+
+    public function testTheAboveFailsForBadArrays()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('SubConformation missing key(s): a, b');
+
+        $sample2 = Sample2::fromArray([
+            'string' => 'this is a sample',
+            'sub' => [
+            ],
+        ]);
     }
 
     /**
