@@ -45,10 +45,10 @@ trait Conformation
             throw new InvalidArgumentException(static::selfName() . ' missing key(s): ' . implode(', ', $missing_keys));
         }
 
-        // oddly enough, php will actually cast a value to its typehint, so make sure that are types are correct
-        static::validateTypes($ordered);
+        // in some cases, php will actually cast a value to its typehint, so make sure that are types are correct
+        $casted_and_validated = static::castConformationsAndValidateTypes($ordered);
 
-        return array_values($ordered);
+        return array_values($casted_and_validated);
     }
 
     private static function getConstructorParameterNames()
@@ -82,7 +82,7 @@ trait Conformation
         return $source;
     }
 
-    private static function validateTypes(array $ordered)
+    private static function castConformationsAndValidateTypes(array $ordered)
     {
         $params = (new ReflectionClass(__CLASS__))->getConstructor()->getParameters();
 
@@ -101,13 +101,26 @@ trait Conformation
 
             $local_type = is_object($value) ? get_class($value) : static::$gettype_to_typehint_map[gettype($value)];
 
-            if ($typehint !== $local_type) {
+            try {
+                $trait_names = array_keys((new ReflectionClass($typehint))->getTraits());
+            } catch (\ReflectionException $e) {
+                $trait_names = [];
+            }
+
+            if (in_array(Conformation::class, $trait_names) && $local_type === 'array') {
+                // put the array data into the Conformation parameter
+                $ordered[$param->name] = $typehint::fromArray($value);
+            }
+
+            if ($typehint !== $local_type && ! (in_array(Conformation::class, $trait_names) && $local_type === 'array')) {
                 $message = 'Param "' . $param->name . '" expected type ' . $param->getType();
                 $message .= ' but got type ' . $local_type;
                 $message .= is_object($value) ? '' : " with value '$value'";
                 throw new InvalidArgumentException($message);
             }
         }
+
+        return $ordered;
     }
 
     private static function arrayOnly(array $from, array $to)
