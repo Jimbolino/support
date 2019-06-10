@@ -33,8 +33,8 @@ class ConformationTest extends \PHPUnit\Framework\TestCase
         $recurse = RecursiveSample::fromArray([
             'string' => 'this is a sample',
             'sub2' => [
-                'd' => 'D', 
-                'e' => 5, 
+                'd' => 'D',
+                'e' => 5,
                 'sub1' => [
                     'a' => 'A',
                     'b' => 2,
@@ -54,8 +54,8 @@ class ConformationTest extends \PHPUnit\Framework\TestCase
         $recurse = RecursiveSample::fromArray([
             'string' => 'this is a sample',
             'sub2' => [
-                'd' => 'D', 
-                'e' => 'E', 
+                'd' => 'D',
+                'e' => 'E',
                 'sub1' => [
                     'a' => 'A',
                     'b' => 2,
@@ -72,14 +72,32 @@ class ConformationTest extends \PHPUnit\Framework\TestCase
         $recurse = RecursiveSample::fromArray([
             'string' => 'this is a sample',
             'sub2' => [
-                'd' => 'D', 
-                'e' => 5, 
+                'd' => 'D',
+                'e' => 5,
                 'sub1' => [
                     'a' => 'A',
                     'b' => 'B',
                 ]
             ],
         ]);
+    }
+
+    public function testArraysOfConformationsCanBeSetAndCreated()
+    {
+        $sample3 = Sample3::fromArray([
+            'string' => 'this is a sample',
+            'subconformations' => [[
+                'a' => 'first',
+                'b' => 1,
+            ],[
+                'a' => 'second',
+                'b' => 2,
+            ]],
+        ]);
+
+        foreach ($sample3->getSubconformations() as $s) {
+            $this->assertEquals(\MattyRad\Support\Test\Unit\SubConformation2::class, get_class($s));
+        }
     }
 
     public function testTheAboveFailsForBadArrays()
