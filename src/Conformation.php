@@ -118,6 +118,21 @@ trait Conformation
                 $message .= is_object($value) ? '' : " with value '$value'";
                 throw new InvalidArgumentException($message);
             }
+
+            if (property_exists(__CLASS__, 'array_conformations') && $local_type === 'array') {
+                foreach (static::$array_conformations as $array_param_name => $conformation_class) {
+                    if ($param->name !== $array_param_name) {
+                        continue;
+                    }
+                    $casted_conformations = [];
+
+                    foreach ($value as $k => $v) {
+                        $casted_conformations[] = $conformation_class::fromArray($v);
+                    }
+
+                    $ordered[$array_param_name] = $casted_conformations;
+                }
+            }
         }
 
         return $ordered;
