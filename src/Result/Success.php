@@ -29,7 +29,7 @@ class Success extends Base
         return $this->response_data;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->toArray();
     }
