@@ -41,7 +41,7 @@ abstract class Failure extends Base
         return $this->getContext();
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->toArray();
     }
